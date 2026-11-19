@@ -309,6 +309,19 @@ class TestClass(TestPyrpl):
         assert np.allclose(sa.data_to_unit(data, "Vrms/sqrt(Hz)", rbw), np.sqrt(vrms2 / rbw))
         assert np.allclose(sa.data_to_unit(data, "dB(Vrms^2/Hz)", rbw), 10 * np.log10(vrms2 / rbw))
 
+    def test_correct_decimation(self):
+        """The decimation filter correction can be switched off."""
+        sa = self.pyrpl.spectrumanalyzer
+        sa.setup(baseband=True, span=1.953125e6, correct_decimation=True)
+        assert sa._scope_decimation() > 1
+        f = sa.frequencies
+        nyquist = np.argmin(abs(f - f[-1]))
+        assert abs(sa.transfer_function_scope(f)[nyquist]) == pytest.approx(2 / np.pi, rel=0.01)
+        sa.correct_decimation = False
+        assert (sa.transfer_function_scope(f) == 1).all()
+        assert sa.setup_attributes["correct_decimation"] is False
+        sa.correct_decimation = True
+
     def test_save_curve(self):
         sa = self.pyrpl.spectrumanalyzer
         sa.setup(baseband=True, center=0, window="flattop", span=1e6, input1_baseband="asg0")
