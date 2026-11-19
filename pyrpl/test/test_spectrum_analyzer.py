@@ -297,6 +297,18 @@ class TestClass(TestPyrpl):
                 points.append(max(curve))
                 assert abs(max(curve) - 1) < 0.01, max(curve)
 
+    def test_data_to_unit(self):
+        """All units must be consistent with each other (data in Vpk^2)."""
+        sa = self.pyrpl.spectrumanalyzer
+        data = np.array([1e-6, 1e-3, 0.5, 2.0])
+        rbw = 25.0
+        vrms2 = data / 2
+        assert np.allclose(sa.data_to_unit(data, "Vrms^2", rbw), vrms2)
+        assert np.allclose(sa.data_to_unit(data, "Vrms", rbw), np.sqrt(vrms2))
+        assert np.allclose(sa.data_to_unit(data, "Vrms^2/Hz", rbw), vrms2 / rbw)
+        assert np.allclose(sa.data_to_unit(data, "Vrms/sqrt(Hz)", rbw), np.sqrt(vrms2 / rbw))
+        assert np.allclose(sa.data_to_unit(data, "dB(Vrms^2/Hz)", rbw), 10 * np.log10(vrms2 / rbw))
+
     def test_save_curve(self):
         sa = self.pyrpl.spectrumanalyzer
         sa.setup(baseband=True, center=0, window="flattop", span=1e6, input1_baseband="asg0")
