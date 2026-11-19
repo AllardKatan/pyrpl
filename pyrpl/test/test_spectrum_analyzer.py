@@ -303,6 +303,7 @@ class TestClass(TestPyrpl):
         sa.single()
         curves = sa.save_curve()
         assert (curves[0].data[1] == sa.data_avg[0]).all()
+        assert curves[0].params["rbw"] == sa.attributes_last_run["rbw"]
         self.curves += curves  # curves will be deleted by teardownAll
 
     def test_save_curve_iq(self):
@@ -312,4 +313,5 @@ class TestClass(TestPyrpl):
         curve = sa.save_curve()
         assert curve.params["name"] == "iq test curve"
         assert (curve.data[1] == sa.data_avg).all()
+        assert curve.params["rbw"] == sa.attributes_last_run["rbw"]
         self.curves.append(curve)  # curves will be deleted by teardownAll
